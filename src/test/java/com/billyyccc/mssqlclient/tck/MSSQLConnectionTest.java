@@ -23,45 +23,12 @@ public class MSSQLConnectionTest extends ConnectionTestBase {
 
   @Override
   public void tearDown(TestContext ctx) {
-    connector.close();
     super.tearDown(ctx);
   }
 
-  @Ignore
-  @Test
-  @Override
-  public void testConnect(TestContext ctx) {
-    super.testConnect(ctx);
-  }
-
-  @Ignore
-  @Test
-  @Override
-  public void testConnectInvalidDatabase(TestContext ctx) {
-    super.testConnectInvalidDatabase(ctx);
-  }
-
-  @Ignore
-  @Test
-  @Override
-  public void testConnectInvalidPassword(TestContext ctx) {
-    super.testConnectInvalidPassword(ctx);
-  }
-
-  @Ignore
-  @Test
-  @Override
-  public void testConnectInvalidUsername(TestContext ctx) {
-    super.testConnectInvalidUsername(ctx);
-  }
-
-  @Ignore
-  @Test
-  @Override
-  public void testClose(TestContext ctx) {
-    super.testClose(ctx);
-  }
-
+  /*
+    TODO enable the tests when we support simple query
+   */
   @Ignore
   @Test
   @Override
