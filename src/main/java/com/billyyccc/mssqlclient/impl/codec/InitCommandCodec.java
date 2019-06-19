@@ -218,8 +218,10 @@ class InitCommandCodec extends MSSQLCommandCodec<Connection, InitCommand> {
    */
   private void writePassword(ByteBuf payload, String password) {
     byte[] bytes = password.getBytes(UTF_16LE);
-    for (byte b : bytes) {
-      payload.writeByte((b >> 4 | ((b & 0x0F) << 4)) ^ 0xA5);
+    for (int i = 0; i < bytes.length; i++) {
+      byte b = bytes[i];
+      bytes[i] = (byte) ((b >> 4 | ((b & 0x0F) << 4)) ^ 0xA5);
     }
+    payload.writeBytes(bytes);
   }
 }
