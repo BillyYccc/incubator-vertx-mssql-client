@@ -5,12 +5,13 @@ import com.billyyccc.mssqlclient.impl.protocol.MessageStatus;
 import com.billyyccc.mssqlclient.impl.protocol.MessageType;
 import com.billyyccc.mssqlclient.impl.protocol.TdsMessage;
 import io.netty.buffer.ByteBuf;
-import io.netty.util.CharsetUtil;
 import io.vertx.core.Handler;
 import io.vertx.sqlclient.impl.command.CommandBase;
 import io.vertx.sqlclient.impl.command.CommandResponse;
 
 import java.util.function.Consumer;
+
+import static java.nio.charset.StandardCharsets.UTF_16LE;
 
 abstract class MSSQLCommandCodec<R, C extends CommandBase<R>> {
   final C cmd;
@@ -60,11 +61,11 @@ abstract class MSSQLCommandCodec<R, C extends CommandBase<R>> {
 
   protected String readByteLenVarchar(ByteBuf buffer) {
     int length = buffer.readUnsignedByte();
-    return buffer.readCharSequence(length * 2, CharsetUtil.UTF_16LE).toString();
+    return buffer.readCharSequence(length * 2, UTF_16LE).toString();
   }
 
   protected String readUnsignedShortLenVarChar(ByteBuf buffer) {
     int length = buffer.readUnsignedShortLE();
-    return buffer.readCharSequence(length * 2, CharsetUtil.UTF_16LE).toString();
+    return buffer.readCharSequence(length * 2, UTF_16LE).toString();
   }
 }

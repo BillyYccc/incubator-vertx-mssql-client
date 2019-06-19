@@ -3,7 +3,6 @@ package com.billyyccc.mssqlclient.impl.codec;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.AsciiString;
-import io.netty.util.CharsetUtil;
 import com.billyyccc.mssqlclient.impl.protocol.MessageStatus;
 import com.billyyccc.mssqlclient.impl.protocol.MessageType;
 import com.billyyccc.mssqlclient.impl.protocol.TdsMessage;
@@ -15,6 +14,8 @@ import io.vertx.sqlclient.impl.command.InitCommand;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static java.nio.charset.StandardCharsets.UTF_16LE;
 
 class InitCommandCodec extends MSSQLCommandCodec<Connection, InitCommand> {
   InitCommandCodec(InitCommand cmd) {
@@ -168,29 +169,29 @@ class InitCommandCodec extends MSSQLCommandCodec<Connection, InitCommand> {
         Data part: note we should set offset by calculation before writing data
        */
     packet.setShortLE(offsetInfo.get("HostName"), packet.writerIndex() - startIdx);
-    packet.writeCharSequence(hostName, CharsetUtil.UTF_16LE);
+    packet.writeCharSequence(hostName, UTF_16LE);
 
     packet.setShortLE(offsetInfo.get("UserName"), packet.writerIndex() - startIdx);
-    packet.writeCharSequence(userName, CharsetUtil.UTF_16LE);
+    packet.writeCharSequence(userName, UTF_16LE);
 
     packet.setShortLE(offsetInfo.get("Password"), packet.writerIndex() - startIdx);
     writePassword(packet, password);
 
     packet.setShortLE(offsetInfo.get("AppName"), packet.writerIndex() - startIdx);
-    packet.writeCharSequence(appName, CharsetUtil.UTF_16LE);
+    packet.writeCharSequence(appName, UTF_16LE);
 
     packet.setShortLE(offsetInfo.get("ServerName"), packet.writerIndex() - startIdx);
-    packet.writeCharSequence(serverName, CharsetUtil.UTF_16LE);
+    packet.writeCharSequence(serverName, UTF_16LE);
 
     packet.setShortLE(offsetInfo.get("Unused"), packet.writerIndex() - startIdx);
 
     packet.setShortLE(offsetInfo.get("CltIntName"), packet.writerIndex() - startIdx);
-    packet.writeCharSequence(interfaceLibraryName, CharsetUtil.UTF_16LE);
+    packet.writeCharSequence(interfaceLibraryName, UTF_16LE);
 
     packet.setShortLE(offsetInfo.get("Language"), packet.writerIndex() - startIdx);
 
     packet.setShortLE(offsetInfo.get("Database"), packet.writerIndex() - startIdx);
-    packet.writeCharSequence(database, CharsetUtil.UTF_16LE);
+    packet.writeCharSequence(database, UTF_16LE);
 
     packet.setShortLE(offsetInfo.get("SSPI"), packet.writerIndex() - startIdx);
 
@@ -216,7 +217,7 @@ class InitCommandCodec extends MSSQLCommandCodec<Connection, InitCommand> {
     the server SHOULD first do a bit-XOR with 0xA5 (10100101) and then swap the four high bits with the four low bits.
    */
   private void writePassword(ByteBuf payload, String password) {
-    byte[] bytes = password.getBytes(CharsetUtil.UTF_16LE);
+    byte[] bytes = password.getBytes(UTF_16LE);
     for (byte b : bytes) {
       payload.writeByte((b >> 4 | ((b & 0x0F) << 4)) ^ 0xA5);
     }
