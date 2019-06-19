@@ -1,8 +1,5 @@
 package com.billyyccc.mssqlclient.impl.protocol;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public enum MessageStatus {
 
   NORMAL(0x00),
@@ -11,16 +8,6 @@ public enum MessageStatus {
   RESET_CONNECTION(0x08),
   RESET_CONNECTION_SKIP_TRAN(0x10);
 
-  private static final Map<Integer, MessageStatus> typeMapping = new HashMap<>();
-
-  static {
-    typeMapping.put(NORMAL.value, NORMAL);
-    typeMapping.put(END_OF_MESSAGE.value, END_OF_MESSAGE);
-    typeMapping.put(IGNORE_THIS_EVENT.value, IGNORE_THIS_EVENT);
-    typeMapping.put(RESET_CONNECTION.value, RESET_CONNECTION);
-    typeMapping.put(RESET_CONNECTION_SKIP_TRAN.value, RESET_CONNECTION_SKIP_TRAN);
-  }
-
   private final int value;
 
   MessageStatus(int value) {
@@ -28,7 +15,20 @@ public enum MessageStatus {
   }
 
   public static MessageStatus valueOf(int value) {
-    return typeMapping.get(value);
+    switch (value) {
+      case 0x00:
+        return NORMAL;
+      case 0x01:
+        return END_OF_MESSAGE;
+      case 0x02:
+        return IGNORE_THIS_EVENT;
+      case 0x08:
+        return RESET_CONNECTION;
+      case 0x10:
+        return RESET_CONNECTION_SKIP_TRAN;
+      default:
+        throw new IllegalArgumentException("Unknown message status value");
+    }
   }
 
   public int value() {

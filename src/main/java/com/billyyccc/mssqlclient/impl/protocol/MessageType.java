@@ -1,8 +1,5 @@
 package com.billyyccc.mssqlclient.impl.protocol;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public enum MessageType {
 
   SQL_BATCH(1),
@@ -17,22 +14,6 @@ public enum MessageType {
   SSPI(17),
   PRE_LOGIN(18);
 
-  private static final Map<Integer, MessageType> typeMapping = new HashMap<>();
-
-  static {
-    typeMapping.put(SQL_BATCH.value, SQL_BATCH);
-    typeMapping.put(PRE_TDS7_LOGIN.value, PRE_TDS7_LOGIN);
-    typeMapping.put(RPC.value, RPC);
-    typeMapping.put(TABULAR_RESULT.value, TABULAR_RESULT);
-    typeMapping.put(ATTENTION_SIGNAL.value, ATTENTION_SIGNAL);
-    typeMapping.put(BULK_LOAD_DATA.value, BULK_LOAD_DATA);
-    typeMapping.put(FEDERATED_AUTHENTICATION_TOKEN.value, FEDERATED_AUTHENTICATION_TOKEN);
-    typeMapping.put(TRANSACTION_MANAGER_REQUEST.value, TRANSACTION_MANAGER_REQUEST);
-    typeMapping.put(TDS7_LOGIN.value, TDS7_LOGIN);
-    typeMapping.put(SSPI.value, SSPI);
-    typeMapping.put(PRE_LOGIN.value, PRE_LOGIN);
-  }
-
   private final int value;
 
   MessageType(int value) {
@@ -40,7 +21,32 @@ public enum MessageType {
   }
 
   public static MessageType valueOf(int value) {
-    return typeMapping.get(value);
+    switch (value) {
+      case 1:
+        return SQL_BATCH;
+      case 2:
+        return PRE_TDS7_LOGIN;
+      case 3:
+        return RPC;
+      case 4:
+        return TABULAR_RESULT;
+      case 6:
+        return ATTENTION_SIGNAL;
+      case 7:
+        return BULK_LOAD_DATA;
+      case 8:
+        return FEDERATED_AUTHENTICATION_TOKEN;
+      case 14:
+        return TRANSACTION_MANAGER_REQUEST;
+      case 16:
+        return TDS7_LOGIN;
+      case 17:
+        return SSPI;
+      case 18:
+        return PRE_LOGIN;
+      default:
+        throw new IllegalArgumentException("Unknown message type value");
+    }
   }
 
   public int value() {
