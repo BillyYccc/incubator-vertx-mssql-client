@@ -3,7 +3,7 @@ package com.billyyccc.mssqlclient.tck;
 import com.billyyccc.mssqlclient.junit.MSSQLRule;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
-import io.vertx.sqlclient.ConnectionTestBase;
+import io.vertx.sqlclient.tck.ConnectionTestBase;
 import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Test;
