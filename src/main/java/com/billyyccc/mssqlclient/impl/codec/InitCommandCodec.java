@@ -12,9 +12,6 @@ import com.billyyccc.mssqlclient.impl.utils.Utils;
 import io.vertx.sqlclient.impl.Connection;
 import io.vertx.sqlclient.impl.command.InitCommand;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import static java.nio.charset.StandardCharsets.UTF_16LE;
 
 class InitCommandCodec extends MSSQLCommandCodec<Connection, InitCommand> {
@@ -81,64 +78,60 @@ class InitCommandCodec extends MSSQLCommandCodec<Connection, InitCommand> {
     packet.writeIntLE(0x00); // ClientTimeZone
     packet.writeIntLE(0x00); // ClientLCID
 
-      /*
-        OffsetLength part:
-        we use a map to store offset related information:
-        parameter name -> packet ByteBuf writer position for offset
-        then we set offset by calculating ByteBuf writer indexes diff later
-       */
-    Map<String, Integer> offsetInfo = new HashMap<>();
-    //FIXME all info
+    /*
+      OffsetLength part:
+      we set offset by calculating ByteBuf writer indexes diff.
+     */
 
     // HostName
     String hostName = Utils.getHostName();
-    offsetInfo.put("HostName", packet.writerIndex());
+    int hostNameOffsetLengthIdx = packet.writerIndex();
     packet.writeShortLE(0x00); // offset
     packet.writeShortLE(hostName.length());
 
     // UserName
     String userName = cmd.username();
-    offsetInfo.put("UserName", packet.writerIndex());
+    int userNameOffsetLengthIdx = packet.writerIndex();
     packet.writeShortLE(0x00); // offset
     packet.writeShortLE(userName.length());
 
     // Password
     String password = cmd.password();
-    offsetInfo.put("Password", packet.writerIndex());
+    int passwordOffsetLengthIdx = packet.writerIndex();
     packet.writeShortLE(0x00); // offset
     packet.writeShortLE(password.length());
 
     // AppName
     CharSequence appName = AsciiString.cached("vertx-mssql-client");
-    offsetInfo.put("AppName", packet.writerIndex());
+    int appNameOffsetLengthIdx = packet.writerIndex();
     packet.writeShortLE(0x00); // offset
     packet.writeShortLE(appName.length());
 
     // ServerName
     String serverName = cmd.connection().socket().remoteAddress().host();
-    offsetInfo.put("ServerName", packet.writerIndex());
+    int serverNameOffsetLengthIdx = packet.writerIndex();
     packet.writeShortLE(0x00); // offset
     packet.writeShortLE(serverName.length());
 
     // Unused or Extension
-    offsetInfo.put("Unused", packet.writerIndex());
+    int unusedOffsetLengthIdx = packet.writerIndex();
     packet.writeShortLE(0x00); // offset
     packet.writeShortLE(0);
 
     // CltIntName
     CharSequence interfaceLibraryName = AsciiString.cached("vertx");
-    offsetInfo.put("CltIntName", packet.writerIndex());
+    int cltIntNameOffsetLengthIdx = packet.writerIndex();
     packet.writeShortLE(0x00); // offset
     packet.writeShortLE(interfaceLibraryName.length());
 
     // Language
-    offsetInfo.put("Language", packet.writerIndex());
+    int languageOffsetLengthIdx = packet.writerIndex();
     packet.writeShortLE(0x00); // offset
     packet.writeShortLE(0);
 
     // Database
     String database = cmd.database();
-    offsetInfo.put("Database", packet.writerIndex());
+    int databaseOffsetLengthIdx = packet.writerIndex();
     packet.writeShortLE(0x00); // offset
     packet.writeShortLE(database.length());
 
@@ -148,56 +141,56 @@ class InitCommandCodec extends MSSQLCommandCodec<Connection, InitCommand> {
     packet.writeShortLE(0x00);
 
     // SSPI
-    offsetInfo.put("SSPI", packet.writerIndex());
+    int sspiOffsetLengthIdx = packet.writerIndex();
     packet.writeShortLE(0x00); // offset
     packet.writeShortLE(0x00);
 
     // AtchDBFile
-    offsetInfo.put("AtchDBFile", packet.writerIndex());
+    int atchDbFileOffsetLengthIdx = packet.writerIndex();
     packet.writeShortLE(0x00); // offset
     packet.writeShortLE(0x00);
 
     // ChangePassword
-    offsetInfo.put("ChangePassword", packet.writerIndex());
+    int changePasswordOffsetLengthIdx = packet.writerIndex();
     packet.writeShortLE(0x00); // offset
     packet.writeShortLE(0x00);
 
     // SSPILong
     packet.writeIntLE(0x00);
 
-      /*
-        Data part: note we should set offset by calculation before writing data
-       */
-    packet.setShortLE(offsetInfo.get("HostName"), packet.writerIndex() - startIdx);
+    /*
+      Data part: note we should set offset by calculation before writing data
+     */
+    packet.setShortLE(hostNameOffsetLengthIdx, packet.writerIndex() - startIdx);
     packet.writeCharSequence(hostName, UTF_16LE);
 
-    packet.setShortLE(offsetInfo.get("UserName"), packet.writerIndex() - startIdx);
+    packet.setShortLE(userNameOffsetLengthIdx, packet.writerIndex() - startIdx);
     packet.writeCharSequence(userName, UTF_16LE);
 
-    packet.setShortLE(offsetInfo.get("Password"), packet.writerIndex() - startIdx);
+    packet.setShortLE(passwordOffsetLengthIdx, packet.writerIndex() - startIdx);
     writePassword(packet, password);
 
-    packet.setShortLE(offsetInfo.get("AppName"), packet.writerIndex() - startIdx);
+    packet.setShortLE(appNameOffsetLengthIdx, packet.writerIndex() - startIdx);
     packet.writeCharSequence(appName, UTF_16LE);
 
-    packet.setShortLE(offsetInfo.get("ServerName"), packet.writerIndex() - startIdx);
+    packet.setShortLE(serverNameOffsetLengthIdx, packet.writerIndex() - startIdx);
     packet.writeCharSequence(serverName, UTF_16LE);
 
-    packet.setShortLE(offsetInfo.get("Unused"), packet.writerIndex() - startIdx);
+    packet.setShortLE(unusedOffsetLengthIdx, packet.writerIndex() - startIdx);
 
-    packet.setShortLE(offsetInfo.get("CltIntName"), packet.writerIndex() - startIdx);
+    packet.setShortLE(cltIntNameOffsetLengthIdx, packet.writerIndex() - startIdx);
     packet.writeCharSequence(interfaceLibraryName, UTF_16LE);
 
-    packet.setShortLE(offsetInfo.get("Language"), packet.writerIndex() - startIdx);
+    packet.setShortLE(languageOffsetLengthIdx, packet.writerIndex() - startIdx);
 
-    packet.setShortLE(offsetInfo.get("Database"), packet.writerIndex() - startIdx);
+    packet.setShortLE(databaseOffsetLengthIdx, packet.writerIndex() - startIdx);
     packet.writeCharSequence(database, UTF_16LE);
 
-    packet.setShortLE(offsetInfo.get("SSPI"), packet.writerIndex() - startIdx);
+    packet.setShortLE(sspiOffsetLengthIdx, packet.writerIndex() - startIdx);
 
-    packet.setShortLE(offsetInfo.get("AtchDBFile"), packet.writerIndex() - startIdx);
+    packet.setShortLE(atchDbFileOffsetLengthIdx, packet.writerIndex() - startIdx);
 
-    packet.setShortLE(offsetInfo.get("ChangePassword"), packet.writerIndex() - startIdx);
+    packet.setShortLE(changePasswordOffsetLengthIdx, packet.writerIndex() - startIdx);
 
     // set length
     packet.setIntLE(startIdx, packet.writerIndex() - startIdx);
