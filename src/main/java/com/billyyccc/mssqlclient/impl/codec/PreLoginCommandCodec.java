@@ -11,9 +11,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.vertx.sqlclient.impl.command.CommandResponse;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 class PreLoginCommandCodec extends MSSQLCommandCodec<Void, PreLoginCommand> {
 
@@ -56,18 +54,29 @@ class PreLoginCommandCodec extends MSSQLCommandCodec<Void, PreLoginCommand> {
 
     int totalLengthOfOptionsData = 0;
 
-      /*
-        we use a map to store offset and length related information:
-        payload ByteBuf writer position for Option offset ->  Option length
-        then we set offset by calculating ByteBuf writer indexes diff later
-       */
-    Map<Integer, Integer> offsetLengthInfo = new HashMap<>();
+    /*
+      We first predefine positions of the option token offset length,
+      then set the offset lengths by calculating ByteBuf writer indexes diff later.
+     */
+
+    // predefined positions to store the ByteBuf writer index
+    int versionOptionTokenOffsetLengthIdx = 0;
+    int encryptionOptionTokenOffsetLengthIdx = 0;
 
     // option token header
     for (OptionToken token : optionTokens) {
       totalLengthOfOptionsData += token.optionLength();
       packet.writeByte(token.tokenType());
-      offsetLengthInfo.put(packet.writerIndex(), token.optionLength());
+      switch (token.tokenType()) {
+        case VersionOptionToken.TYPE:
+          versionOptionTokenOffsetLengthIdx = packet.writerIndex();
+          break;
+        case EncryptionOptionToken.TYPE:
+          encryptionOptionTokenOffsetLengthIdx = packet.writerIndex();
+          break;
+        default:
+          throw new IllegalStateException("Unexpected token type");
+      }
       packet.writeShort(0x00);
       packet.writeShort(token.optionLength());
     }
@@ -84,9 +93,19 @@ class PreLoginCommandCodec extends MSSQLCommandCodec<Void, PreLoginCommand> {
     int totalLengthOfPayload = packet.writerIndex() - payloadStartIdx;
     int offsetStart = totalLengthOfPayload - totalLengthOfOptionsData;
 
-    for (Map.Entry<Integer, Integer> entry : offsetLengthInfo.entrySet()) {
-      packet.setShort(entry.getKey(), offsetStart);
-      offsetStart += entry.getValue();
+    for (OptionToken token : optionTokens) {
+      switch (token.tokenType()) {
+        case VersionOptionToken.TYPE:
+          packet.setShort(versionOptionTokenOffsetLengthIdx, offsetStart);
+          offsetStart += token.optionLength();
+          break;
+        case EncryptionOptionToken.TYPE:
+          packet.setShort(encryptionOptionTokenOffsetLengthIdx, offsetStart);
+          offsetStart += token.optionLength();
+          break;
+        default:
+          throw new IllegalStateException("Unexpected token type");
+      }
     }
 
     int packetLen = packet.writerIndex() - packetDataStartIdx + 8;
