@@ -1,0 +1,53 @@
+= Reactive MSSQL Client
+
+The Reactive MSSQL Client is a client for Microsoft SQL Server with a straightforward API focusing on
+scalability and low overhead.
+
+*Features*
+
+* Event driven
+* Lightweight
+* Built-in connection pooling(TODO)
+* Prepared queries caching(TODO)
+* Cursor support(TODO)
+* Row streaming(TODO)
+* RxJava 1 and RxJava 2(TODO)
+* Direct memory to object without unnecessary copies
+* Java 8 Date and Time(TODO)
+
+== Usage
+
+To use the Reactive MSSQL Client add the following dependency to the _dependencies_ section of your build descriptor:
+
+* Maven (in your `pom.xml`):
+
+[source,xml]
+----
+<dependency>
+  <groupId>${maven.groupId}</groupId>
+  <artifactId>${maven.artifactId}</artifactId>
+  <version>${maven.version}</version>
+</dependency>
+----
+* Gradle (in your `build.gradle` file):
+
+[source,groovy]
+----
+dependencies {
+  compile '${maven.groupId}:${maven.artifactId}:${maven.version}'
+}
+----
+
+== Getting started
+
+Here is the simplest way to connect, query and disconnect
+
+[source,$lang]
+----
+{@link examples.MSSQLClientExamples#gettingStarted()}
+----
+
+== Connecting to MSSQL
+
+TODO
+
