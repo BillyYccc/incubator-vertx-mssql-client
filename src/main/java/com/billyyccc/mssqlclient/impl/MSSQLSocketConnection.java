@@ -11,6 +11,8 @@ import io.vertx.sqlclient.impl.SocketConnectionBase;
 import io.vertx.sqlclient.impl.command.CommandResponse;
 import io.vertx.sqlclient.impl.command.InitCommand;
 
+import java.util.Map;
+
 class MSSQLSocketConnection extends SocketConnectionBase {
   private MSSQLCodec codec;
 
@@ -30,8 +32,8 @@ class MSSQLSocketConnection extends SocketConnectionBase {
     schedule(cmd);
   }
 
-  void sendLoginMessage(String username, String password, String database, Handler<? super CommandResponse<Connection>> completionHandler) {
-    InitCommand cmd = new InitCommand(this, username, password, database);
+  void sendLoginMessage(String username, String password, String database, Map<String, String> properties, Handler<? super CommandResponse<Connection>> completionHandler) {
+    InitCommand cmd = new InitCommand(this, username, password, database, properties);
     cmd.handler = completionHandler;
     schedule(cmd);
   }

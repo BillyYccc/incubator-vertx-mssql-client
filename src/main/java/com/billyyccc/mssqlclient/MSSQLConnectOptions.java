@@ -13,6 +13,8 @@ import io.vertx.core.net.SSLEngineOptions;
 import io.vertx.core.net.TrustOptions;
 import io.vertx.sqlclient.SqlConnectOptions;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -26,6 +28,14 @@ public class MSSQLConnectOptions extends SqlConnectOptions {
   public static final String DEFAULT_USER = "sa";
   public static final String DEFAULT_PASSWORD = "";
   public static final String DEFAULT_SCHEMA = "";
+  public static final Map<String, String> DEFAULT_PROPERTIES;
+
+  static {
+    Map<String, String> defaultProperties = new HashMap<>();
+    defaultProperties.put("appName", "vertx-mssql-client");
+    defaultProperties.put("clientInterfaceName", "Vert.x");
+    DEFAULT_PROPERTIES = defaultProperties;
+  }
 
   public MSSQLConnectOptions() {
     super();
@@ -63,6 +73,16 @@ public class MSSQLConnectOptions extends SqlConnectOptions {
   @Override
   public MSSQLConnectOptions setDatabase(String database) {
     return (MSSQLConnectOptions) super.setDatabase(database);
+  }
+
+  @Override
+  public MSSQLConnectOptions setProperties(Map<String, String> properties) {
+    return (MSSQLConnectOptions) super.setProperties(properties);
+  }
+
+  @Override
+  public MSSQLConnectOptions addProperty(String key, String value) {
+    return (MSSQLConnectOptions) super.addProperty(key, value);
   }
 
   @Override
@@ -289,6 +309,7 @@ public class MSSQLConnectOptions extends SqlConnectOptions {
     this.setUser(DEFAULT_USER);
     this.setPassword(DEFAULT_PASSWORD);
     this.setDatabase(DEFAULT_SCHEMA);
+    this.setProperties(new HashMap<>(DEFAULT_PROPERTIES));
   }
 
 //  @Override

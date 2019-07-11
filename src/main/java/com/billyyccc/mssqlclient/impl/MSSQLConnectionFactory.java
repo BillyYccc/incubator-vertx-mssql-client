@@ -12,6 +12,9 @@ import io.vertx.core.net.NetClientOptions;
 import io.vertx.core.net.NetSocket;
 import io.vertx.sqlclient.impl.Connection;
 
+import java.util.HashMap;
+import java.util.Map;
+
 class MSSQLConnectionFactory {
   private final NetClient netClient;
   private final Context context;
@@ -21,6 +24,7 @@ class MSSQLConnectionFactory {
   private final String username;
   private final String password;
   private final String database;
+  private final Map<String, String> properties;
 
   public MSSQLConnectionFactory(Context context, MSSQLConnectOptions options) {
     NetClientOptions netClientOptions = new NetClientOptions(options);
@@ -31,6 +35,7 @@ class MSSQLConnectionFactory {
     this.username = options.getUser();
     this.password = options.getPassword();
     this.database = options.getDatabase();
+    this.properties = new HashMap<>(options.getProperties());
 
     this.netClient = context.owner().createNetClient(netClientOptions);
   }
@@ -44,7 +49,7 @@ class MSSQLConnectionFactory {
         conn.init();
         conn.sendPreLoginMessage(false, preLogin -> {
           if (preLogin.succeeded()) {
-            conn.sendLoginMessage(username, password, database, completionHandler);
+            conn.sendLoginMessage(username, password, database, properties, completionHandler);
           } else {
             completionHandler.handle(Future.failedFuture(preLogin.cause()));
           }

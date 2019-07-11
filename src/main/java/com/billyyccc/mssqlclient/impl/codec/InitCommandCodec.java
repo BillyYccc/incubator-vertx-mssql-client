@@ -12,6 +12,8 @@ import com.billyyccc.mssqlclient.impl.utils.Utils;
 import io.vertx.sqlclient.impl.Connection;
 import io.vertx.sqlclient.impl.command.InitCommand;
 
+import java.util.Map;
+
 import static java.nio.charset.StandardCharsets.UTF_16LE;
 
 class InitCommandCodec extends MSSQLCommandCodec<Connection, InitCommand> {
@@ -82,6 +84,7 @@ class InitCommandCodec extends MSSQLCommandCodec<Connection, InitCommand> {
       OffsetLength part:
       we set offset by calculating ByteBuf writer indexes diff.
      */
+    Map<String, String> properties = cmd.properties();
 
     // HostName
     String hostName = Utils.getHostName();
@@ -102,7 +105,7 @@ class InitCommandCodec extends MSSQLCommandCodec<Connection, InitCommand> {
     packet.writeShortLE(password.length());
 
     // AppName
-    CharSequence appName = AsciiString.cached("vertx-mssql-client");
+    CharSequence appName = properties.get("appName");
     int appNameOffsetLengthIdx = packet.writerIndex();
     packet.writeShortLE(0x00); // offset
     packet.writeShortLE(appName.length());
@@ -119,7 +122,7 @@ class InitCommandCodec extends MSSQLCommandCodec<Connection, InitCommand> {
     packet.writeShortLE(0);
 
     // CltIntName
-    CharSequence interfaceLibraryName = AsciiString.cached("vertx");
+    CharSequence interfaceLibraryName = properties.get("clientInterfaceName");
     int cltIntNameOffsetLengthIdx = packet.writerIndex();
     packet.writeShortLE(0x00); // offset
     packet.writeShortLE(interfaceLibraryName.length());
