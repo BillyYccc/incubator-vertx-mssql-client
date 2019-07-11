@@ -27,6 +27,9 @@
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
     <stack.version>3.8.0-SNAPSHOT</stack.version>
+    <doc.skip>false</doc.skip>
+    <docs.dir>${project.basedir}/src/main/docs</docs.dir>
+    <generated.dir>${project.basedir}/src/main/generated</generated.dir>
   </properties>
 
   <dependencyManagement>
@@ -90,16 +93,25 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.8.1</version>
-        <configuration>
-          <source>1.8</source>
-          <target>1.8</target>
-        </configuration>
+        <groupId>org.bsc.maven</groupId>
+        <artifactId>maven-processor-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>generate-sources</id>
+            <configuration>
+              <optionMap>
+                <docgen.source>${project.basedir}/../vertx-sql-client/src/main/asciidoc/*.adoc,${asciidoc.dir}/*.adoc</docgen.source>
+              </optionMap>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+
+  </profiles>
 
 
 </project>

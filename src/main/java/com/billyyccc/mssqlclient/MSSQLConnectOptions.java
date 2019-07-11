@@ -1,6 +1,8 @@
 package com.billyyccc.mssqlclient;
 
+import io.vertx.codegen.annotations.DataObject;
 import io.vertx.core.buffer.Buffer;
+import io.vertx.core.json.JsonObject;
 import io.vertx.core.net.JdkSSLEngineOptions;
 import io.vertx.core.net.JksOptions;
 import io.vertx.core.net.KeyCertOptions;
@@ -21,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Connect options for configuring {@link MSSQLConnection}.
  */
-//@DataObject
+@DataObject(generateConverter = true)
 public class MSSQLConnectOptions extends SqlConnectOptions {
   public static final String DEFAULT_HOST = "localhost";
   public static final int DEFAULT_PORT = 1433;
@@ -41,10 +43,10 @@ public class MSSQLConnectOptions extends SqlConnectOptions {
     super();
   }
 
-//  public MSSQLConnectOptions(JsonObject json) {
-//    super(json);
-//    MSSQLConnectOptionsConverter.fromJson(json, this);
-//  }
+  public MSSQLConnectOptions(JsonObject json) {
+    super(json);
+    MSSQLConnectOptionsConverter.fromJson(json, this);
+  }
 
   public MSSQLConnectOptions(MSSQLConnectOptions other) {
     super(other);
@@ -312,10 +314,10 @@ public class MSSQLConnectOptions extends SqlConnectOptions {
     this.setProperties(new HashMap<>(DEFAULT_PROPERTIES));
   }
 
-//  @Override
-//  public JsonObject toJson() {
-//    JsonObject json = super.toJson();
-//    MSSQLConnectOptionsConverter.toJson(this, json);
-//    return json;
-//  }
+  @Override
+  public JsonObject toJson() {
+    JsonObject json = super.toJson();
+    MSSQLConnectOptionsConverter.toJson(this, json);
+    return json;
+  }
 }
