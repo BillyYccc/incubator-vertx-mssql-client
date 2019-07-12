@@ -8,15 +8,12 @@ public final class VersionOptionToken extends OptionToken {
   private final int buildNumber;
   private final int subBuildNumber;
 
-  private final int optionLength;
-
   public VersionOptionToken(short majorVersion, short minorVersion, int buildNumber, int subBuildNumber) {
-    super(TYPE);
+    super(TYPE, 6);
     this.majorVersion = majorVersion;
     this.minorVersion = minorVersion;
     this.buildNumber = buildNumber;
     this.subBuildNumber = subBuildNumber;
-    this.optionLength = 6; // 1 byte + 1 byte + 2 byte + 2 byte
   }
 
   public short majorVersion() {
@@ -33,9 +30,5 @@ public final class VersionOptionToken extends OptionToken {
 
   public int subBuildNumber() {
     return subBuildNumber;
-  }
-
-  public int optionLength() {
-    return optionLength;
   }
 }

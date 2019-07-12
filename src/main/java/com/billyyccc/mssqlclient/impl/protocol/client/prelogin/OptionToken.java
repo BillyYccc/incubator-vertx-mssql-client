@@ -2,10 +2,11 @@ package com.billyyccc.mssqlclient.impl.protocol.client.prelogin;
 
 public abstract class OptionToken {
   private final byte type;
-  int optionLength;
+  private final int optionLength;
 
-  public OptionToken(byte type) {
+  public OptionToken(byte type, int optionLength) {
     this.type = type;
+    this.optionLength = optionLength;
   }
 
   public byte tokenType() {

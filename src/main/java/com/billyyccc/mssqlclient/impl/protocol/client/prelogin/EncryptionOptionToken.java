@@ -11,16 +11,11 @@ public final class EncryptionOptionToken extends OptionToken {
   private final byte setting;
 
   public EncryptionOptionToken(byte setting) {
-    super(TYPE);
+    super(TYPE, 1);
     this.setting = setting;
-    this.optionLength = 1; // 1 byte
   }
 
   public byte setting() {
     return setting;
-  }
-
-  public int optionLength() {
-    return optionLength;
   }
 }
