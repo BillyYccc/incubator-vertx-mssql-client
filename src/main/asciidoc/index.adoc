@@ -51,3 +51,10 @@ Here is the simplest way to connect, query and disconnect
 
 TODO
 
+== DATATYPE support
+
+* TINYINT
+* SMALLINT
+* INT
+* BIGINT
+* VARCHAR

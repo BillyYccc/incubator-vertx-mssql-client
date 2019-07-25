@@ -22,6 +22,7 @@ public class MSSQLRule extends ExternalResource {
 
   private MSSQLConnectOptions startMSSQL() {
     server = new MSSQLServer();
+    server.withInitScript("init.sql");
     server.start();
 
     MSSQLConnectOptions options = new MSSQLConnectOptions()
