@@ -7,6 +7,7 @@ import io.netty.channel.ChannelPromise;
 import io.vertx.sqlclient.impl.command.CloseConnectionCommand;
 import io.vertx.sqlclient.impl.command.CommandBase;
 import io.vertx.sqlclient.impl.command.InitCommand;
+import io.vertx.sqlclient.impl.command.SimpleQueryCommand;
 
 import java.util.ArrayDeque;
 
@@ -49,6 +50,8 @@ class TdsMessageEncoder extends ChannelOutboundHandlerAdapter {
       return new PreLoginCommandCodec((PreLoginCommand) cmd);
     } else if (cmd instanceof InitCommand) {
       return new InitCommandCodec((InitCommand) cmd);
+    } else if (cmd instanceof SimpleQueryCommand) {
+      return new SQLBatchCommandCodec((SimpleQueryCommand) cmd);
     } else if (cmd == CloseConnectionCommand.INSTANCE) {
       return new CloseConnectionCommandCodec((CloseConnectionCommand) cmd);
     } else {

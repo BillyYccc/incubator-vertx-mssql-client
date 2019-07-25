@@ -16,7 +16,12 @@ public final class TdsMessage extends DefaultByteBufHolder {
   }
 
   public static TdsMessage newTdsMessage(MessageType type, MessageStatus status, int processId, ByteBuf data) {
-    return new TdsMessage(type, status, processId, data);
+    return new TdsMessage(type, status, processId, data.retainedSlice());
+  }
+
+  public static TdsMessage newTdsMessageFromSinglePacket(TdsPacket tdsPacket) {
+    ByteBuf packetData = tdsPacket.content().slice();
+    return newTdsMessage(tdsPacket.type(), tdsPacket.status(), tdsPacket.processId(), packetData);
   }
 
   public MessageType type() {
