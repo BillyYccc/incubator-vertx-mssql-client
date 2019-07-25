@@ -1,27 +1,27 @@
 package com.billyyccc.mssqlclient.impl.protocol.token;
 
 public final class DataPacketStreamTokenType {
-  public static final byte ALTMETADATA_TOKEN = (byte) 0x88;
-  public static final byte ALTROW_TOKEN = (byte) 0xD3;
-  public static final byte COLMETADATA_TOKEN = (byte) 0x81;
-  public static final byte COLINFO_TOKEN = (byte) 0xA5;
-  public static final byte DONE_TOKEN = (byte) 0xFD;
-  public static final byte DONEPROC_TOKEN = (byte) 0xFE;
-  public static final byte DONEINPROC_TOKEN = (byte) 0xFF;
-  public static final byte ENVCHANGE_TOKEN = (byte) 0xE3;
-  public static final byte ERROR_TOKEN = (byte) 0xAA;
-  public static final byte FEATUREEXTACK = (byte) 0xAE;
-  public static final byte FEDAUTHINFO_TOKEN = (byte) 0xEE;
-  public static final byte INFO_TOKEN = (byte) 0xAB;
-  public static final byte LOGINACK_TOKEN = (byte) 0xAD;
-  public static final byte NBCROW_TOKEN = (byte) 0xD2;
-  public static final byte ORDER_TOKEN = (byte) 0xA9;
-  public static final byte RETURNSTATUS_TOKEN = 0x79;
-  public static final byte RETURNVALUE_TOKEN = (byte) 0xAC;
-  public static final byte ROW_TOKEN = (byte) 0xD1;
-  public static final byte SESSIONSTATE_TOKEN = (byte) 0xE4;
-  public static final byte SSPI_TOKEN = (byte) 0xED;
-  public static final byte TABNAME_TOKEN = (byte) 0xA4;
+  public static final int ALTMETADATA_TOKEN = 0x88;
+  public static final int ALTROW_TOKEN = 0xD3;
+  public static final int COLMETADATA_TOKEN = 0x81;
+  public static final int COLINFO_TOKEN = 0xA5;
+  public static final int DONE_TOKEN = 0xFD;
+  public static final int DONEPROC_TOKEN = 0xFE;
+  public static final int DONEINPROC_TOKEN = 0xFF;
+  public static final int ENVCHANGE_TOKEN = 0xE3;
+  public static final int ERROR_TOKEN = 0xAA;
+  public static final int FEATUREEXTACK = 0xAE;
+  public static final int FEDAUTHINFO_TOKEN = 0xEE;
+  public static final int INFO_TOKEN = 0xAB;
+  public static final int LOGINACK_TOKEN = 0xAD;
+  public static final int NBCROW_TOKEN = 0xD2;
+  public static final int ORDER_TOKEN = 0xA9;
+  public static final int RETURNSTATUS_TOKEN = 0x79;
+  public static final int RETURNVALUE_TOKEN = 0xAC;
+  public static final int ROW_TOKEN = 0xD1;
+  public static final int SESSIONSTATE_TOKEN = 0xE4;
+  public static final int SSPI_TOKEN = 0xED;
+  public static final int TABNAME_TOKEN = 0xA4;
 
-  public static final byte OFFSET_TOKEN = 0x78;
+  public static final int OFFSET_TOKEN = 0x78;
 }
