@@ -1,17 +1,16 @@
 package com.billyyccc.mssqlclient.impl.codec;
 
 import com.billyyccc.mssqlclient.impl.protocol.MessageStatus;
-import com.billyyccc.mssqlclient.impl.protocol.MessageType;
 import com.billyyccc.mssqlclient.impl.protocol.TdsMessage;
 import com.billyyccc.mssqlclient.impl.protocol.TdsPacket;
-import io.netty.buffer.ByteBuf;
 import io.netty.buffer.CompositeByteBuf;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.handler.codec.MessageToMessageDecoder;
 
 import java.util.ArrayDeque;
+import java.util.List;
 
-class TdsMessageDecoder extends ChannelInboundHandlerAdapter {
+class TdsMessageDecoder extends MessageToMessageDecoder<TdsPacket> {
   private final ArrayDeque<MSSQLCommandCodec<?, ?>> inflight;
   private final TdsMessageEncoder encoder;
 
@@ -23,45 +22,33 @@ class TdsMessageDecoder extends ChannelInboundHandlerAdapter {
   }
 
   @Override
-  public void channelRead(ChannelHandlerContext ctx, Object msg) {
-    ByteBuf in = (ByteBuf) msg;
-    // decoding a packet
-    if (in.readableBytes() > TdsPacket.PACKET_HEADER_SIZE) {
-      int packetStartIdx = in.readerIndex();
-      int packetLen = in.getUnsignedShort(packetStartIdx + 2);
-
-      if (in.readableBytes() >= packetLen) {
-        MessageType type = MessageType.valueOf(in.readUnsignedByte());
-        MessageStatus status = MessageStatus.valueOf(in.readUnsignedByte());
-        in.skipBytes(2); // packet length
-        int processId = in.readUnsignedShort();
-        short packetId = in.readUnsignedByte();
-        in.skipBytes(1); // unused window
-
-        ByteBuf packetData = in.readSlice(packetLen - TdsPacket.PACKET_HEADER_SIZE);
-
-        // assemble packets
-        if (status == MessageStatus.END_OF_MESSAGE) {
-          if (message == null) {
-            decodeMessage(TdsMessage.newTdsMessage(type, status, processId, packetData), encoder);
-          } else {
-            // fragmented packet of this message
-            CompositeByteBuf messageData = (CompositeByteBuf) message.content();
-            messageData.addComponent(true, packetData);
-            decodeMessage(message, encoder);
-            message = null;
-          }
-        } else {
-          CompositeByteBuf messageData = ctx.alloc().compositeBuffer();
-          messageData.addComponent(true, packetData);
-          message = TdsMessage.newTdsMessage(type, status, processId, messageData);
-        }
+  protected void decode(ChannelHandlerContext channelHandlerContext, TdsPacket tdsPacket, List<Object> list) throws Exception {
+    // assemble packets
+    if (tdsPacket.status() == MessageStatus.END_OF_MESSAGE) {
+      if (message == null) {
+        message = TdsMessage.newTdsMessageFromSinglePacket(tdsPacket);
+        decodeMessage();
+      } else {
+        // last packet of this message
+        CompositeByteBuf messageData = (CompositeByteBuf) message.content();
+        messageData.addComponent(true, tdsPacket.content());
+        decodeMessage();
+      }
+    } else {
+      if (message == null) {
+        // first packet of this message and there will be more packets
+        CompositeByteBuf messageData = channelHandlerContext.alloc().compositeBuffer();
+        messageData.addComponent(true, tdsPacket.content());
+        message = TdsMessage.newTdsMessage(tdsPacket.type(), tdsPacket.status(), tdsPacket.processId(), messageData);
+      } else {
+        CompositeByteBuf messageData = (CompositeByteBuf) message.content();
+        messageData.addComponent(true, tdsPacket.content());
       }
     }
   }
 
-  private void decodeMessage(TdsMessage message, TdsMessageEncoder encoder) {
+  private void decodeMessage() {
     inflight.peek().decodeMessage(message, encoder);
-    message.release();
+    this.message = null;
   }
 }

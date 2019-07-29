@@ -1,15 +1,18 @@
 package com.billyyccc.mssqlclient.impl.codec;
 
-import io.netty.channel.CombinedChannelDuplexHandler;
+import io.netty.channel.ChannelPipeline;
 
 import java.util.ArrayDeque;
 
-public class MSSQLCodec extends CombinedChannelDuplexHandler<TdsMessageDecoder, TdsMessageEncoder> {
-  private final ArrayDeque<MSSQLCommandCodec<?, ?>> inflight = new ArrayDeque<>();
+public class MSSQLCodec {
+  public static void initPipeLine(ChannelPipeline pipeline) {
+    final ArrayDeque<MSSQLCommandCodec<?, ?>> inflight = new ArrayDeque<>();
 
-  public MSSQLCodec() {
     TdsMessageEncoder encoder = new TdsMessageEncoder(inflight);
-    TdsMessageDecoder decoder = new TdsMessageDecoder(inflight, encoder);
-    init(decoder, encoder);
+    TdsMessageDecoder messageDecoder = new TdsMessageDecoder(inflight, encoder);
+    TdsPacketDecoder packetDecoder = new TdsPacketDecoder();
+    pipeline.addBefore("handler", "encoder", encoder);
+    pipeline.addBefore("encoder", "messageDecoder", messageDecoder);
+    pipeline.addBefore("messageDecoder", "packetDecoder", packetDecoder);
   }
 }

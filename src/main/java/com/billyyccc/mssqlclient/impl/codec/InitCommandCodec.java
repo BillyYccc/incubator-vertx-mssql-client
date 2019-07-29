@@ -31,7 +31,7 @@ class InitCommandCodec extends MSSQLCommandCodec<Connection, InitCommand> {
   void decodeMessage(TdsMessage message, TdsMessageEncoder encoder) {
     ByteBuf messageBody = message.content();
     while (messageBody.isReadable()) {
-      byte tokenType = messageBody.readByte();
+      int tokenType = messageBody.readUnsignedByte();
       switch (tokenType) {
         //FIXME complete all the logic here
         case DataPacketStreamTokenType.LOGINACK_TOKEN:

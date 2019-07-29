@@ -14,8 +14,6 @@ import io.vertx.sqlclient.impl.command.InitCommand;
 import java.util.Map;
 
 class MSSQLSocketConnection extends SocketConnectionBase {
-  private MSSQLCodec codec;
-
   MSSQLSocketConnection(NetSocketInternal socket,
                         boolean cachePreparedStatements,
                         int preparedStatementCacheSize,
@@ -40,9 +38,8 @@ class MSSQLSocketConnection extends SocketConnectionBase {
 
   @Override
   public void init() {
-    codec = new MSSQLCodec();
     ChannelPipeline pipeline = socket.channelHandlerContext().pipeline();
-    pipeline.addBefore("handler", "codec", codec);
+    MSSQLCodec.initPipeLine(pipeline);
     super.init();
   }
 }
