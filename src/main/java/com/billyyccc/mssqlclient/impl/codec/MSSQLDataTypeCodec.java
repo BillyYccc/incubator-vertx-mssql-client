@@ -6,8 +6,8 @@ import io.netty.buffer.ByteBuf;
 
 import java.nio.charset.StandardCharsets;
 
-public class MSSQLDataTypeCodec {
-  public static Object decode(MSSQLDataType dataType, ByteBuf in) {
+class MSSQLDataTypeCodec {
+  static Object decode(MSSQLDataType dataType, ByteBuf in) {
     switch (dataType.id()) {
       case MSSQLDataTypeId.INT1TYPE_ID:
         return in.readUnsignedByte();
