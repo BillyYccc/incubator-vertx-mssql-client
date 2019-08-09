@@ -68,4 +68,9 @@ abstract class MSSQLCommandCodec<R, C extends CommandBase<R>> {
     int length = buffer.readUnsignedShortLE();
     return buffer.readCharSequence(length * 2, UTF_16LE).toString();
   }
+
+  protected void writeUnsignedShortLenVarChar(ByteBuf buffer, String value) {
+    buffer.writeShortLE(value.length() * 2);
+    buffer.writeCharSequence(value, UTF_16LE);
+  }
 }
