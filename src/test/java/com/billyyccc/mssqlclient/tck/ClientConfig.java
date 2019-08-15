@@ -2,10 +2,12 @@ package com.billyyccc.mssqlclient.tck;
 
 import com.billyyccc.mssqlclient.MSSQLConnectOptions;
 import com.billyyccc.mssqlclient.MSSQLConnection;
+import com.billyyccc.mssqlclient.MSSQLPool;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
+import io.vertx.sqlclient.PoolOptions;
 import io.vertx.sqlclient.SqlClient;
 import io.vertx.sqlclient.SqlConnectOptions;
 import io.vertx.sqlclient.SqlConnection;
@@ -19,12 +21,7 @@ public enum ClientConfig {
         @Override
         public void connect(Handler<AsyncResult<SqlConnection>> handler) {
           //TODO remove this when we have data object support for connect options
-          MSSQLConnectOptions connectOptions = new MSSQLConnectOptions()
-            .setHost(options.getHost())
-            .setPort(options.getPort())
-            .setUser(options.getUser())
-            .setPassword(options.getPassword())
-            .setDatabase(options.getDatabase());
+          MSSQLConnectOptions connectOptions = new MSSQLConnectOptions(options.toJson());
           MSSQLConnection.connect(vertx, connectOptions, ar -> {
             if (ar.succeeded()) {
               handler.handle(Future.succeededFuture(ar.result()));
@@ -36,6 +33,29 @@ public enum ClientConfig {
 
         @Override
         public void close() {
+        }
+      };
+    }
+  },
+
+  POOLED() {
+    @Override
+    Connector<SqlClient> connect(Vertx vertx, SqlConnectOptions options) {
+      MSSQLPool pool = MSSQLPool.pool(vertx, new MSSQLConnectOptions(options.toJson()), new PoolOptions().setMaxSize(1));
+      return new Connector<SqlClient>() {
+        @Override
+        public void connect(Handler<AsyncResult<SqlClient>> handler) {
+          pool.getConnection(ar -> {
+            if (ar.succeeded()) {
+              handler.handle(Future.succeededFuture(ar.result()));
+            } else {
+              handler.handle(Future.failedFuture(ar.cause()));
+            }
+          });
+        }
+        @Override
+        public void close() {
+          pool.close();
         }
       };
     }
