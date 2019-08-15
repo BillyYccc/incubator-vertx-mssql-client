@@ -14,6 +14,8 @@ import io.vertx.sqlclient.impl.command.ExtendedQueryCommand;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
+import static com.billyyccc.mssqlclient.impl.codec.MSSQLDataTypeCodec.inferenceParamDefinitionByValueType;
+
 class ExtendedQueryCommandCodec<T> extends QueryCommandBaseCodec<T, ExtendedQueryCommand<T>> {
 
   ExtendedQueryCommandCodec(ExtendedQueryCommand cmd) {
@@ -153,26 +155,6 @@ class ExtendedQueryCommandCodec<T> extends QueryCommandBaseCodec<T, ExtendedQuer
     payload.writeByte(0x00);
     payload.writeByte(0x34); // Collation for param definitions TODO always this value?
     writeUnsignedShortLenVarChar(payload, value);
-  }
-
-  private String inferenceParamDefinitionByValueType(Object value) {
-    if (value instanceof Byte) {
-      return "tinyint";
-    } else if (value instanceof Short) {
-      return "smallint";
-    } else if (value instanceof Integer) {
-      return "int";
-    } else if (value instanceof Long) {
-      return "bigint";
-    } else if (value == null || value instanceof String) {
-      return "nvarchar(4000)";
-    } else if (value instanceof LocalDate) {
-      return "date";
-    } else if (value instanceof LocalTime) {
-      return "time";
-    } else {
-      throw new UnsupportedOperationException("Unsupported type");
-    }
   }
 
   private void encodeParamValue(ByteBuf payload, Object value) {
