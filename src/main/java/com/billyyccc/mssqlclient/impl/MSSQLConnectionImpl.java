@@ -21,7 +21,7 @@ public class MSSQLConnectionImpl extends SqlConnectionImpl<MSSQLConnectionImpl> 
   public static void connect(Vertx vertx, MSSQLConnectOptions options, Handler<AsyncResult<MSSQLConnection>> handler) {
     Context ctx = Vertx.currentContext();
     if (ctx != null) {
-      MSSQLConnectionFactory client = new MSSQLConnectionFactory(ctx, options);
+      MSSQLConnectionFactory client = new MSSQLConnectionFactory(ctx, false, options);
       client.create(ar -> {
         if (ar.succeeded()) {
           Connection conn = ar.result();

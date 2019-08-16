@@ -1,11 +1,7 @@
 package com.billyyccc.mssqlclient.impl;
 
 import com.billyyccc.mssqlclient.MSSQLConnectOptions;
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Context;
-import io.vertx.core.Future;
-import io.vertx.core.Handler;
-import io.vertx.core.Promise;
+import io.vertx.core.*;
 import io.vertx.core.impl.NetSocketInternal;
 import io.vertx.core.net.NetClient;
 import io.vertx.core.net.NetClientOptions;
@@ -18,6 +14,7 @@ import java.util.Map;
 class MSSQLConnectionFactory {
   private final NetClient netClient;
   private final Context context;
+  private final boolean registerCloseHook;
 
   private final String host;
   private final int port;
@@ -25,11 +22,18 @@ class MSSQLConnectionFactory {
   private final String password;
   private final String database;
   private final Map<String, String> properties;
+  private final Closeable hook;
 
-  public MSSQLConnectionFactory(Context context, MSSQLConnectOptions options) {
+  public MSSQLConnectionFactory(Context context, boolean registerCloseHook, MSSQLConnectOptions options) {
     NetClientOptions netClientOptions = new NetClientOptions(options);
 
     this.context = context;
+    this.registerCloseHook = registerCloseHook;
+    this.hook = this::close;
+    if (registerCloseHook) {
+      context.addCloseHook(hook);
+    }
+
     this.host = options.getHost();
     this.port = options.getPort();
     this.username = options.getUser();
@@ -59,5 +63,18 @@ class MSSQLConnectionFactory {
       }
     });
     netClient.connect(port, host, promise);
+  }
+
+  // Called by hook
+  private void close(Handler<AsyncResult<Void>> completionHandler) {
+    netClient.close();
+    completionHandler.handle(Future.succeededFuture());
+  }
+
+  void close() {
+    if (registerCloseHook) {
+      context.removeCloseHook(hook);
+    }
+    netClient.close();
   }
 }

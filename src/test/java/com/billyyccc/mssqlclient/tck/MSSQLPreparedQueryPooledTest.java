@@ -6,7 +6,7 @@ import io.vertx.ext.unit.junit.VertxUnitRunner;
 import org.junit.runner.RunWith;
 
 @RunWith(VertxUnitRunner.class)
-public class MSSQLPreparedQueryTest extends MSSQLPreparedQueryTestBase {
+public class MSSQLPreparedQueryPooledTest extends MSSQLPreparedQueryTestBase {
   @Override
   public void setUp(TestContext ctx) throws Exception {
     vertx = Vertx.vertx();
@@ -17,7 +17,6 @@ public class MSSQLPreparedQueryTest extends MSSQLPreparedQueryTestBase {
   @Override
   protected void initConnector() {
     options = rule.options();
-    connector = ClientConfig.CONNECT.connect(vertx, options);
+    connector = ClientConfig.POOLED.connect(vertx, options);
   }
-
 }
