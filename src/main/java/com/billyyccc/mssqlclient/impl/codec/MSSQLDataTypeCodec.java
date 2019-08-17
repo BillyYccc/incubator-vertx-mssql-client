@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 class MSSQLDataTypeCodec {
-  private static LocalDate START_DATE = LocalDate.of(1, 1, 1);
+  static LocalDate START_DATE = LocalDate.of(1, 1, 1);
   private static Map<Class, String> parameterDefinitionsMapping = new HashMap<>();
 
   static {
@@ -23,6 +23,9 @@ class MSSQLDataTypeCodec {
     parameterDefinitionsMapping.put(Short.class, "smallint");
     parameterDefinitionsMapping.put(Integer.class, "int");
     parameterDefinitionsMapping.put(Long.class, "bigint");
+    parameterDefinitionsMapping.put(Boolean.class, "bit");
+    parameterDefinitionsMapping.put(Float.class, "float");
+    parameterDefinitionsMapping.put(Double.class, "float");
     parameterDefinitionsMapping.put(String.class, "nvarchar(4000)");
     parameterDefinitionsMapping.put(LocalDate.class, "date");
     parameterDefinitionsMapping.put(LocalTime.class, "time");
@@ -31,6 +34,9 @@ class MSSQLDataTypeCodec {
   static String inferenceParamDefinitionByValueType(Object value) {
     if (value == null) {
       return "nvarchar(4000)";
+    } else if (value instanceof Numeric) {
+      //FIXME should we use Numeric wrapped type?
+      throw new UnsupportedOperationException();
     } else {
       String paramDefinition = parameterDefinitionsMapping.get(value.getClass());
       if (paramDefinition != null) {
@@ -71,9 +77,8 @@ class MSSQLDataTypeCodec {
     }
   }
 
-  private static Object decodeTimeN(TimeNDataType dataType, ByteBuf in) {
-    TimeNDataType timeNDataType = dataType;
-    int scale = timeNDataType.scale();
+  private static LocalTime decodeTimeN(TimeNDataType dataType, ByteBuf in) {
+    int scale = dataType.scale();
     byte timeLength = in.readByte();
     long timeValue;
     switch (timeLength) {
@@ -100,7 +105,7 @@ class MSSQLDataTypeCodec {
     return LocalTime.ofSecondOfDay(secondsValue).plusNanos(nanosValue);
   }
 
-  private static Object decodeVarchar(ByteBuf in) {
+  private static CharSequence decodeVarchar(ByteBuf in) {
     int length = in.readUnsignedShortLE();
     return in.readCharSequence(length, StandardCharsets.UTF_8);
   }

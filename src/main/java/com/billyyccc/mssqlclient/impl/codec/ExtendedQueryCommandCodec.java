@@ -9,10 +9,12 @@ import com.billyyccc.mssqlclient.impl.protocol.token.DataPacketStreamTokenType;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.vertx.sqlclient.Tuple;
+import io.vertx.sqlclient.data.Numeric;
 import io.vertx.sqlclient.impl.command.ExtendedQueryCommand;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 
 import static com.billyyccc.mssqlclient.impl.codec.MSSQLDataTypeCodec.inferenceParamDefinitionByValueType;
 
@@ -168,12 +170,20 @@ class ExtendedQueryCommandCodec<T> extends QueryCommandBaseCodec<T, ExtendedQuer
       encodeIntNParameter(payload, 4, value);
     } else if (value instanceof Long) {
       encodeIntNParameter(payload, 8, value);
+    } else if (value instanceof Float) {
+      encodeFloat4Parameter(payload, (Float) value);
+    } else if (value instanceof Double) {
+      encodeFloat8Parameter(payload, (Double) value);
     } else if (value instanceof String) {
       encodeNVarcharParameter(payload, (String) value);
+    } else if (value instanceof Boolean) {
+      encodeBitNParameter(payload, (Boolean) value);
     } else if (value instanceof LocalDate) {
-      throw new UnsupportedOperationException("Unsupported type");
+      encodeDateNParameter(payload, (LocalDate) value);
     } else if (value instanceof LocalTime) {
-      throw new UnsupportedOperationException("Unsupported type");
+      encodeTimeNParameter(payload, (LocalTime) value, (byte) 6);
+    } else if (value instanceof Numeric) {
+      encodeNumericParameter(payload, (Numeric) value);
     } else {
       throw new UnsupportedOperationException("Unsupported type");
     }
@@ -200,10 +210,10 @@ class ExtendedQueryCommandCodec<T> extends QueryCommandBaseCodec<T, ExtendedQuer
     payload.writeByte(n);
     switch (n) {
       case 1:
-        payload.writeByte((Integer) value);
+        payload.writeByte((Byte) value);
         break;
       case 2:
-        payload.writeShortLE((Integer) value);
+        payload.writeShortLE((Short) value);
         break;
       case 4:
         payload.writeIntLE((Integer) value);
@@ -214,5 +224,85 @@ class ExtendedQueryCommandCodec<T> extends QueryCommandBaseCodec<T, ExtendedQuer
       default:
         throw new UnsupportedOperationException();
     }
+  }
+
+  private void encodeBitNParameter(ByteBuf payload, Boolean bit) {
+    payload.writeByte(0x00);
+    payload.writeByte(0x00);
+    payload.writeByte(MSSQLDataTypeId.BITNTYPE_ID);
+    payload.writeByte(1);
+    payload.writeByte(1);
+    payload.writeBoolean(bit);
+  }
+
+  private void encodeFloat4Parameter(ByteBuf payload, Float value) {
+    payload.writeByte(0x00);
+    payload.writeByte(0x00);
+    payload.writeByte(MSSQLDataTypeId.FLTNTYPE_ID);
+    payload.writeByte(4);
+    payload.writeByte(4);
+    payload.writeFloatLE(value);
+  }
+
+  private void encodeFloat8Parameter(ByteBuf payload, Double value) {
+    payload.writeByte(0x00);
+    payload.writeByte(0x00);
+    payload.writeByte(MSSQLDataTypeId.FLTNTYPE_ID);
+    payload.writeByte(8);
+    payload.writeByte(8);
+    payload.writeDoubleLE(value);
+  }
+
+  private void encodeDateNParameter(ByteBuf payload, LocalDate date) {
+    payload.writeByte(0x00);
+    payload.writeByte(0x00);
+    payload.writeByte(MSSQLDataTypeId.DATENTYPE_ID);
+    if (date == null) {
+      // null
+      payload.writeByte(0);
+    } else {
+      payload.writeByte(3);
+      long days = ChronoUnit.DAYS.between(MSSQLDataTypeCodec.START_DATE, date);
+      payload.writeMediumLE((int) days);
+    }
+  }
+
+  private void encodeTimeNParameter(ByteBuf payload, LocalTime time, byte scale) {
+    payload.writeByte(0x00);
+    payload.writeByte(0x00);
+    payload.writeByte(MSSQLDataTypeId.TIMENTYPE_ID);
+
+    payload.writeByte(scale); //FIXME scale?
+    if (time == null) {
+      payload.writeByte(0);
+    } else {
+      int length;
+      if (scale <= 2) {
+        length = 3;
+      } else if (scale <= 4) {
+        length = 4;
+      } else {
+        length = 5;
+      }
+      payload.writeByte(length);
+      long nanos = time.getNano();
+      int seconds = time.toSecondOfDay();
+      long value = (long) ((long) seconds * Math.pow(10, scale) + nanos);
+      encodeInt40(payload, value);
+    }
+  }
+
+  private void encodeInt40(ByteBuf buffer, long value) {
+    int index = buffer.writerIndex();
+    buffer.setByte(index, (byte) value);
+    buffer.setByte(index + 1, (byte) (value >>> 8));
+    buffer.setByte(index + 2, (byte) (value >>> 16));
+    buffer.setByte(index + 3, (byte) (value >>> 24));
+    buffer.setByte(index + 4, (byte) (value >>> 32));
+    buffer.writerIndex(index + 5);
+  }
+
+  private void encodeNumericParameter(ByteBuf buffer, Numeric value) {
+
   }
 }
