@@ -2,15 +2,20 @@ package com.billyyccc.mssqlclient.impl.codec;
 
 import com.billyyccc.mssqlclient.impl.protocol.datatype.MSSQLDataType;
 import com.billyyccc.mssqlclient.impl.protocol.datatype.MSSQLDataTypeId;
+import com.billyyccc.mssqlclient.impl.protocol.datatype.NumericDataType;
+import com.billyyccc.mssqlclient.impl.protocol.datatype.TimeNDataType;
 import io.netty.buffer.ByteBuf;
+import io.vertx.sqlclient.data.Numeric;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
 
 class MSSQLDataTypeCodec {
+  private static LocalDate START_DATE = LocalDate.of(1, 1, 1);
   private static Map<Class, String> parameterDefinitionsMapping = new HashMap<>();
 
   static {
@@ -39,18 +44,138 @@ class MSSQLDataTypeCodec {
   static Object decode(MSSQLDataType dataType, ByteBuf in) {
     switch (dataType.id()) {
       case MSSQLDataTypeId.INT1TYPE_ID:
-        return in.readUnsignedByte();
+        return decodeTinyInt(in);
       case MSSQLDataTypeId.INT2TYPE_ID:
-        return in.readShortLE();
+        return decodeSmallInt(in);
       case MSSQLDataTypeId.INT4TYPE_ID:
-        return in.readIntLE();
+        return decodeInt(in);
       case MSSQLDataTypeId.INT8TYPE_ID:
-        return in.readLongLE();
+        return decodeBigInt(in);
+      case MSSQLDataTypeId.NUMERICNTYPE_ID:
+      case MSSQLDataTypeId.DECIMALNTYPE_ID:
+        return decodeNumeric((NumericDataType) dataType, in);
+      case MSSQLDataTypeId.FLT4TYPE_ID:
+        return decodeFloat4(in);
+      case MSSQLDataTypeId.FLT8TYPE_ID:
+        return decodeFloat8(in);
+      case MSSQLDataTypeId.BITTYPE_ID:
+        return decodeBit(in);
+      case MSSQLDataTypeId.DATENTYPE_ID:
+        return decodeDateN(in);
+      case MSSQLDataTypeId.TIMENTYPE_ID:
+        return decodeTimeN((TimeNDataType) dataType, in);
       case MSSQLDataTypeId.BIGVARCHRTYPE_ID:
-        int length = in.readUnsignedShortLE();
-        return in.readCharSequence(length, StandardCharsets.UTF_8);
+        return decodeVarchar(in);
       default:
         throw new UnsupportedOperationException("Unsupported datatype: " + dataType);
     }
+  }
+
+  private static Object decodeTimeN(TimeNDataType dataType, ByteBuf in) {
+    TimeNDataType timeNDataType = dataType;
+    int scale = timeNDataType.scale();
+    byte timeLength = in.readByte();
+    long timeValue;
+    switch (timeLength) {
+      case 0:
+        return null;
+      case 3:
+        timeValue = in.readUnsignedMediumLE();
+        break;
+      case 4:
+        timeValue = in.readUnsignedIntLE();
+        break;
+      case 5:
+        timeValue = readUnsignedInt40LE(in);
+        break;
+      default:
+        throw new IllegalStateException();
+    }
+    for (int i = 0; i < 7 - scale; i++) {
+      timeValue *= 10;
+    }
+    timeValue = (long) (timeValue * Math.pow(10, 7 - scale));
+    long secondsValue = timeValue / 100000000;
+    long nanosValue = timeValue % 100000000;
+    return LocalTime.ofSecondOfDay(secondsValue).plusNanos(nanosValue);
+  }
+
+  private static Object decodeVarchar(ByteBuf in) {
+    int length = in.readUnsignedShortLE();
+    return in.readCharSequence(length, StandardCharsets.UTF_8);
+  }
+
+  private static LocalDate decodeDateN(ByteBuf in) {
+    byte dateLength = in.readByte();
+    if (dateLength == 0) {
+      return null;
+    } else if (dateLength == 3) {
+      int days = in.readUnsignedMediumLE();
+      return START_DATE.plus(days, ChronoUnit.DAYS);
+    } else {
+      throw new IllegalStateException();
+    }
+  }
+
+  private static boolean decodeBit(ByteBuf in) {
+    return in.readBoolean();
+  }
+
+  private static double decodeFloat8(ByteBuf in) {
+    return in.readDoubleLE();
+  }
+
+  private static float decodeFloat4(ByteBuf in) {
+    return in.readFloatLE();
+  }
+
+  private static Numeric decodeNumeric(NumericDataType dataType, ByteBuf in) {
+    short length = in.readUnsignedByte();
+    if (length == 0) {
+      return null;
+    } else {
+      int sign = in.readByte();
+      Number value;
+      switch (length - 1) {
+        case 4:
+          value = in.readIntLE();
+          break;
+        case 8:
+          value = in.readLongLE();
+          break;
+        case 12:
+        case 16:
+          //TODO wrapped types?
+          throw new UnsupportedOperationException();
+        default:
+          throw new IllegalStateException();
+      }
+      return Numeric.create(value.longValue() / Math.pow(10, dataType.scale()) * sign);
+    }
+  }
+
+  private static long decodeBigInt(ByteBuf in) {
+    return in.readLongLE();
+  }
+
+  private static int decodeInt(ByteBuf in) {
+    return in.readIntLE();
+  }
+
+  private static short decodeSmallInt(ByteBuf in) {
+    return in.readShortLE();
+  }
+
+  private static short decodeTinyInt(ByteBuf in) {
+    return in.readUnsignedByte();
+  }
+
+  private static long readUnsignedInt40LE(ByteBuf buffer) {
+    //TODO optimize
+    return (long) buffer.readUnsignedByte() |
+      ((long) buffer.readUnsignedByte()) << 8 |
+      ((long) buffer.readUnsignedByte()) << 16 |
+      ((long) buffer.readUnsignedByte()) << 24 |
+      ((long) buffer.readUnsignedByte()) << 32;
   }
 }

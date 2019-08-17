@@ -105,7 +105,13 @@ Currently the client supports the following SQL Server types
 * SMALLINT(`java.lang.Short`)
 * INT(`java.lang.Integer`)
 * BIGINT(`java.lang.Long`)
+* BIT(`java.lang.Boolean`)
+* REAL(`java.lang.Float`)
+* DOUBLE(`java.lang.Double`)
+* CHAR(`java.lang.String`)
 * VARCHAR(`java.lang.String`)
+* DATE(`java.time.LocalDate`)
+* TIME(`java.time.LocalTime`)
 
 Tuple decoding uses the above types when storing values
 
