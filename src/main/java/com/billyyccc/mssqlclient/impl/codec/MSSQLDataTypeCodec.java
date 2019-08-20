@@ -37,7 +37,7 @@ class MSSQLDataTypeCodec {
     if (value == null) {
       return "nvarchar(4000)";
     } else if (value instanceof Numeric) {
-      //FIXME should we use Numeric wrapped type?
+      //TODO we may need some changes in Numeric to make this work
       throw new UnsupportedOperationException();
     } else {
       String paramDefinition = parameterDefinitionsMapping.get(value.getClass());

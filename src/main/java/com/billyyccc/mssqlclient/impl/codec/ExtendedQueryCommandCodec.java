@@ -303,6 +303,7 @@ class ExtendedQueryCommandCodec<T> extends QueryCommandBaseCodec<T, ExtendedQuer
   }
 
   private void encodeNumericParameter(ByteBuf buffer, Numeric value) {
-
+    //TODO we may need some changes in Numeric to make this work
+    throw new UnsupportedOperationException();
   }
 }
