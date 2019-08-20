@@ -7,6 +7,8 @@ import com.billyyccc.mssqlclient.impl.protocol.datatype.TimeNDataType;
 import io.netty.buffer.ByteBuf;
 import io.vertx.sqlclient.data.Numeric;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -135,6 +137,7 @@ class MSSQLDataTypeCodec {
   }
 
   private static Numeric decodeNumeric(NumericDataType dataType, ByteBuf in) {
+    int scale = dataType.scale();
     short length = in.readUnsignedByte();
     if (length == 0) {
       return null;
@@ -149,13 +152,13 @@ class MSSQLDataTypeCodec {
           value = in.readLongLE();
           break;
         case 12:
+          return Numeric.create(new BigDecimal(readUnsignedInt96LE(in), scale));
         case 16:
-          //TODO wrapped types?
-          throw new UnsupportedOperationException();
+          return Numeric.create(new BigDecimal(readUnsignedInt128LE(in), scale));
         default:
           throw new IllegalStateException();
       }
-      return Numeric.create(value.longValue() / Math.pow(10, dataType.scale()) * sign);
+      return Numeric.create(value.longValue() / Math.pow(10, scale) * sign);
     }
   }
 
@@ -182,5 +185,25 @@ class MSSQLDataTypeCodec {
       ((long) buffer.readUnsignedByte()) << 16 |
       ((long) buffer.readUnsignedByte()) << 24 |
       ((long) buffer.readUnsignedByte()) << 32;
+  }
+
+  private static BigInteger readUnsignedInt96LE(ByteBuf buffer) {
+    byte[] result = new byte[12];
+    int readerIndex = buffer.readerIndex();
+    for (int i = 0; i < 12; i++) {
+      result[i] = buffer.getByte(readerIndex + 11 - i);
+    }
+    buffer.skipBytes(12);
+    return new BigInteger(result);
+  }
+
+  private static BigInteger readUnsignedInt128LE(ByteBuf buffer) {
+    byte[] result = new byte[16];
+    int readerIndex = buffer.readerIndex();
+    for (int i = 0; i < 16; i++) {
+      result[i] = buffer.getByte(readerIndex + 15 - i);
+    }
+    buffer.skipBytes(16);
+    return new BigInteger(result);
   }
 }
