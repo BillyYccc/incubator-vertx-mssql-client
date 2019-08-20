@@ -96,7 +96,7 @@ class MSSQLDataTypeCodec {
         timeValue = readUnsignedInt40LE(in);
         break;
       default:
-        throw new IllegalStateException();
+        throw new IllegalStateException("Unexpected timeLength of [" + timeLength + "]");
     }
     for (int i = 0; i < 7 - scale; i++) {
       timeValue *= 10;
@@ -120,7 +120,7 @@ class MSSQLDataTypeCodec {
       int days = in.readUnsignedMediumLE();
       return START_DATE.plus(days, ChronoUnit.DAYS);
     } else {
-      throw new IllegalStateException();
+      throw new IllegalStateException("Unexpected dateLength of [" + dateLength + "]");
     }
   }
 
@@ -156,7 +156,7 @@ class MSSQLDataTypeCodec {
         case 16:
           return Numeric.create(new BigDecimal(readUnsignedInt128LE(in), scale));
         default:
-          throw new IllegalStateException();
+          throw new IllegalStateException("Unexpected numeric length of [" + length + "]");
       }
       return Numeric.create(value.longValue() / Math.pow(10, scale) * sign);
     }
