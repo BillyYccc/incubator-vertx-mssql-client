@@ -2,6 +2,7 @@ package com.billyyccc.mssqlclient.impl.protocol.datatype;
 
 import io.vertx.core.buffer.Buffer;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class FixedLenDataType extends MSSQLDataType {
@@ -21,4 +22,7 @@ public class FixedLenDataType extends MSSQLDataType {
   public static FixedLenDataType FLT8TYPE = new FixedLenDataType(MSSQLDataTypeId.FLT8TYPE_ID, Double.class);
   public static FixedLenDataType MONEY4TYPE = new FixedLenDataType(MSSQLDataTypeId.MONEY4TYPE_ID, null); //TODO
   public static FixedLenDataType INT8TYPE = new FixedLenDataType(MSSQLDataTypeId.INT8TYPE_ID, Long.class);
+
+  // DATENTYPE 0 or 3 length
+  public static FixedLenDataType DATENTYPE = new FixedLenDataType(MSSQLDataTypeId.DATENTYPE_ID, LocalDate.class);
 }
