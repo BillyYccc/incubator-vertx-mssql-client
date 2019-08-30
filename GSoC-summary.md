@@ -50,11 +50,11 @@ Achievements:
 
 ## What can be expected in the future
 
-We have built a reactive SQL Server client from scratch based on the SPI of the Reactive SQL Client, we can see the project is taking shape and on track now, but we still have many expectations for it.
+We have built a reactive SQL Server client from scratch based on the SPI of the Reactive SQL Client, we can see the project is taking shape and on track now, the project now provides a reactive access to Microsoft SQL Server databases and we can expect a few contributions in the foreseeable future.
 
 * Improvements for the implementation details: the code can be optimized for simpler logic and better performance
 * Integration with the Eclipse Vert.x stack: at a later proper time we would like to move this project to the Reactive SQL Client and integrate with the Eclipse Vert.x stack
-* More features: we still have many missing features(such as TLS support) to add in this client, and that’s an interesting direction for future work
+* More features: we still have a few improvements such as TLS support to add in this client, and that’s an interesting direction for future work
 
 ## Acknowledgements
 
