@@ -45,6 +45,11 @@ public class MSSQLRowImpl extends ArrayTuple implements RowInternal {
   }
 
   @Override
+  public <T> T[] getValues(Class<T> type, int idx) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public Boolean getBoolean(String columnName) {
     throw new UnsupportedOperationException();
   }
