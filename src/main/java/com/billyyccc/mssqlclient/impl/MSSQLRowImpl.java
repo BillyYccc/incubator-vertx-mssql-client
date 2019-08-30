@@ -51,7 +51,8 @@ public class MSSQLRowImpl extends ArrayTuple implements RowInternal {
 
   @Override
   public Boolean getBoolean(String columnName) {
-    throw new UnsupportedOperationException();
+    int pos = rowDesc.columnIndex(columnName);
+    return pos == -1 ? null : getBoolean(pos);
   }
 
   @Override
@@ -80,12 +81,14 @@ public class MSSQLRowImpl extends ArrayTuple implements RowInternal {
 
   @Override
   public Float getFloat(String columnName) {
-    throw new UnsupportedOperationException();
+    int pos = rowDesc.columnIndex(columnName);
+    return pos == -1 ? null : getFloat(pos);
   }
 
   @Override
   public Double getDouble(String columnName) {
-    throw new UnsupportedOperationException();
+    int pos = rowDesc.columnIndex(columnName);
+    return pos == -1 ? null : getDouble(pos);
   }
 
   @Override
@@ -106,12 +109,14 @@ public class MSSQLRowImpl extends ArrayTuple implements RowInternal {
 
   @Override
   public LocalDate getLocalDate(String columnName) {
-    throw new UnsupportedOperationException();
+    int pos = rowDesc.columnIndex(columnName);
+    return pos == -1 ? null : getLocalDate(pos);
   }
 
   @Override
   public LocalTime getLocalTime(String columnName) {
-    throw new UnsupportedOperationException();
+    int pos = rowDesc.columnIndex(columnName);
+    return pos == -1 ? null : getLocalTime(pos);
   }
 
   @Override
