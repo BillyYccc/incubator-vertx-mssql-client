@@ -3,6 +3,7 @@ package com.billyyccc.mssqlclient.impl.codec;
 import io.vertx.sqlclient.impl.ParamDesc;
 import io.vertx.sqlclient.impl.PreparedStatement;
 import io.vertx.sqlclient.impl.RowDesc;
+import io.vertx.sqlclient.impl.TupleInternal;
 
 import java.util.List;
 
@@ -31,7 +32,7 @@ public class MSSQLPreparedStatement implements PreparedStatement {
   }
 
   @Override
-  public String prepare(List<Object> values) {
+  public String prepare(TupleInternal values) {
 //    return paramDesc.prepare(values);
     return null;
   }

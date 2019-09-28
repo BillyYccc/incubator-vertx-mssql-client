@@ -38,25 +38,25 @@ public interface MSSQLPool extends Pool {
   }
 
   @Override
-  MSSQLPool preparedQuery(String s, Handler<AsyncResult<RowSet>> handler);
+  MSSQLPool preparedQuery(String s, Handler<AsyncResult<RowSet<Row>>> handler);
 
   @Override
   <R> MSSQLPool preparedQuery(String s, Collector<Row, ?, R> collector, Handler<AsyncResult<SqlResult<R>>> handler);
 
   @Override
-  MSSQLPool query(String s, Handler<AsyncResult<RowSet>> handler);
+  MSSQLPool query(String s, Handler<AsyncResult<RowSet<Row>>> handler);
 
   @Override
   <R> MSSQLPool query(String s, Collector<Row, ?, R> collector, Handler<AsyncResult<SqlResult<R>>> handler);
 
   @Override
-  MSSQLPool preparedQuery(String s, Tuple tuple, Handler<AsyncResult<RowSet>> handler);
+  MSSQLPool preparedQuery(String s, Tuple tuple, Handler<AsyncResult<RowSet<Row>>> handler);
 
   @Override
   <R> MSSQLPool preparedQuery(String s, Tuple tuple, Collector<Row, ?, R> collector, Handler<AsyncResult<SqlResult<R>>> handler);
 
   @Override
-  MSSQLPool preparedBatch(String s, List<Tuple> list, Handler<AsyncResult<RowSet>> handler);
+  MSSQLPool preparedBatch(String s, List<Tuple> list, Handler<AsyncResult<RowSet<Row>>> handler);
 
   @Override
   <R> MSSQLPool preparedBatch(String s, List<Tuple> list, Collector<Row, ?, R> collector, Handler<AsyncResult<SqlResult<R>>> handler);

@@ -1,9 +1,9 @@
 package com.billyyccc.mssqlclient.impl;
 
 import io.vertx.core.buffer.Buffer;
+import io.vertx.sqlclient.Row;
 import io.vertx.sqlclient.impl.ArrayTuple;
 import io.vertx.sqlclient.impl.RowDesc;
-import io.vertx.sqlclient.impl.RowInternal;
 
 import java.math.BigDecimal;
 import java.time.*;
@@ -11,23 +11,12 @@ import java.time.temporal.Temporal;
 import java.util.List;
 import java.util.UUID;
 
-public class MSSQLRowImpl extends ArrayTuple implements RowInternal {
+public class MSSQLRowImpl extends ArrayTuple implements Row {
   private final RowDesc rowDesc;
-  MSSQLRowImpl next;
 
   public MSSQLRowImpl(RowDesc rowDesc) {
     super(rowDesc.columnNames().size());
     this.rowDesc = rowDesc;
-  }
-
-  @Override
-  public RowInternal getNext() {
-    return next;
-  }
-
-  @Override
-  public void setNext(RowInternal next) {
-    this.next = (MSSQLRowImpl) next;
   }
 
   @Override

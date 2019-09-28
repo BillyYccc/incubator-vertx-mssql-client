@@ -29,10 +29,10 @@ class SQLBatchCommandCodec<T> extends QueryCommandBaseCodec<T, SimpleQueryComman
       switch (tokenByte) {
         case DataPacketStreamTokenType.COLMETADATA_TOKEN:
           MSSQLRowDesc rowDesc = decodeColmetadataToken(messageBody);
-          rowResultDecoder = new RowResultDecoder<>(cmd.collector(), false, rowDesc);
+          rowResultDecoder = new RowResultDecoder<>(cmd.collector(), rowDesc);
           break;
         case DataPacketStreamTokenType.ROW_TOKEN:
-          decodeRow(messageBody);
+          handleRow(messageBody);
           break;
         case DataPacketStreamTokenType.DONE_TOKEN:
           short status = messageBody.readShortLE();

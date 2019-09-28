@@ -1,8 +1,11 @@
 package com.billyyccc.mssqlclient.impl.codec;
 
 import com.billyyccc.mssqlclient.impl.protocol.datatype.MSSQLDataType;
+import io.vertx.sqlclient.Tuple;
 import io.vertx.sqlclient.impl.ParamDesc;
+import io.vertx.sqlclient.impl.TupleInternal;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -19,7 +22,7 @@ class MSSQLParamDesc extends ParamDesc {
   }
 
   @Override
-  public String prepare(List<Object> values) {
+  public String prepare(TupleInternal values) {
     if (values.size() != paramDescriptions.length){
       return buildReport(values);
     }
@@ -27,9 +30,13 @@ class MSSQLParamDesc extends ParamDesc {
   }
 
   // reuse from pg
-  private String buildReport(List<Object> values) {
+  private String buildReport(Tuple values) {
+    List<Object> checkList = new ArrayList<>(values.size());
+    for (int i = 0; i < values.size(); i++) {
+      checkList.add(values.getValue(i));
+    }
     Stream<Class> types = Stream.of(paramDescriptions).map(ColumnData::dataType).map(MSSQLDataType::mappedJavaType);
-    return "Values [" + values.stream().map(String::valueOf).collect(Collectors.joining(", ")) +
+    return "Values [" + checkList.stream().map(String::valueOf).collect(Collectors.joining(", ")) +
       "] cannot be coerced to [" + types
       .map(Class::getSimpleName)
       .collect(Collectors.joining(", ")) + "]";
