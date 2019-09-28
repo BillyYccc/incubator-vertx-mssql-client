@@ -45,26 +45,29 @@ abstract class QueryCommandBaseCodec<T, C extends QueryCommandBase<T>> extends M
     return new MSSQLRowDesc(columnDatas);
   }
 
-  protected void decodeRow(ByteBuf payload) {
-    rowResultDecoder.decodeRow(rowResultDecoder.desc.columnDatas.length, payload);
+  protected void handleRow(ByteBuf payload) {
+    rowResultDecoder.handleRow(rowResultDecoder.desc.columnDatas.length, payload);
   }
 
   protected void handleResultSetDone(int affectedRows) {
     this.result = false;
     T result;
+    Throwable failure;
     int size;
     RowDesc rowDesc;
     if (rowResultDecoder != null) {
-      result = rowResultDecoder.complete();
+      failure = rowResultDecoder.complete();
+      result = rowResultDecoder.result();
       rowDesc = rowResultDecoder.desc;
       size = rowResultDecoder.size();
       rowResultDecoder.reset();
     } else {
       result = emptyResult(cmd.collector());
+      failure = null;
       size = 0;
       rowDesc = null;
     }
-    cmd.resultHandler().handleResult(affectedRows, size, rowDesc, result);
+    cmd.resultHandler().handleResult(affectedRows, size, rowDesc, result, failure);
   }
 
   private MSSQLDataType decodeDataTypeMetadata(ByteBuf payload) {

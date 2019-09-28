@@ -40,25 +40,25 @@ public interface MSSQLConnection extends SqlConnection {
   MSSQLConnection closeHandler(Handler<Void> handler);
 
   @Override
-  MSSQLConnection preparedQuery(String s, Handler<AsyncResult<RowSet>> handler);
+  MSSQLConnection preparedQuery(String s, Handler<AsyncResult<RowSet<Row>>> handler);
 
   @Override
   <R> MSSQLConnection preparedQuery(String s, Collector<Row, ?, R> collector, Handler<AsyncResult<SqlResult<R>>> handler);
 
   @Override
-  MSSQLConnection query(String s, Handler<AsyncResult<RowSet>> handler);
+  MSSQLConnection query(String s, Handler<AsyncResult<RowSet<Row>>> handler);
 
   @Override
   <R> MSSQLConnection query(String s, Collector<Row, ?, R> collector, Handler<AsyncResult<SqlResult<R>>> handler);
 
   @Override
-  MSSQLConnection preparedQuery(String s, Tuple tuple, Handler<AsyncResult<RowSet>> handler);
+  MSSQLConnection preparedQuery(String s, Tuple tuple, Handler<AsyncResult<RowSet<Row>>> handler);
 
   @Override
   <R> MSSQLConnection preparedQuery(String s, Tuple tuple, Collector<Row, ?, R> collector, Handler<AsyncResult<SqlResult<R>>> handler);
 
   @Override
-  MSSQLConnection preparedBatch(String s, List<Tuple> list, Handler<AsyncResult<RowSet>> handler);
+  MSSQLConnection preparedBatch(String s, List<Tuple> list, Handler<AsyncResult<RowSet<Row>>> handler);
 
   @Override
   <R> MSSQLConnection preparedBatch(String s, List<Tuple> list, Collector<Row, ?, R> collector, Handler<AsyncResult<SqlResult<R>>> handler);
